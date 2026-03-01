@@ -1,0 +1,31 @@
+# Dependencies (installed inside Docker)
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Git
+.git/
+.gitignore
+
+# Tests
+coverage/
+__tests__/
+*.test.js
+*.spec.js

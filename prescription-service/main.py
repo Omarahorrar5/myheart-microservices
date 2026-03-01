@@ -30,16 +30,12 @@ class Prescription(BaseModel):
     notes: Optional[str] = None
     status: Optional[str] = "active"
 
-class PrescriptionOut(Prescription):
-    id: str
-    created_at: str
-
 def serialize(doc) -> dict:
     doc["id"] = str(doc["_id"])
     del doc["_id"]
     return doc
 
-@app.get("/api/prescriptions", response_model=List[dict])
+@app.get("/api/prescriptions")
 async def get_all():
     prescriptions = []
     async for doc in db.prescriptions.find():
@@ -65,9 +61,8 @@ async def create(p: Prescription):
     data = p.dict()
     data["created_at"] = datetime.utcnow().isoformat()
     result = await db.prescriptions.insert_one(data)
-    data["id"] = str(result.inserted_id)
-    del data["_id"] if "_id" in data else None
-    return data
+    created = await db.prescriptions.find_one({"_id": result.inserted_id})
+    return serialize(created)
 
 @app.put("/api/prescriptions/{id}")
 async def update(id: str, p: Prescription):

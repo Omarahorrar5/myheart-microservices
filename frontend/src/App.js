@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const API = '';  // uses nginx gateway via same origin
-
 function App() {
   const [tab, setTab] = useState('patients');
   return (
@@ -19,40 +17,51 @@ function App() {
         </nav>
       </header>
       <main>
-        {tab === 'patients'       && <Patients />}
-        {tab === 'appointments'   && <Appointments />}
-        {tab === 'bills'          && <Bills />}
-        {tab === 'prescriptions'  && <Prescriptions />}
-        {tab === 'lab-reports'    && <LabReports />}
-        {tab === 'reviews'        && <Reviews />}
+        {tab === 'patients'      && <Patients />}
+        {tab === 'appointments'  && <Appointments />}
+        {tab === 'bills'         && <Bills />}
+        {tab === 'prescriptions' && <Prescriptions />}
+        {tab === 'lab-reports'   && <LabReports />}
+        {tab === 'reviews'       && <Reviews />}
       </main>
     </div>
   );
 }
 
-/* -------- PATIENTS -------- */
+/* ── PATIENTS ── */
 function Patients() {
   const [patients, setPatients] = useState([]);
-  const [form, setForm] = useState({ firstName:'', lastName:'', email:'', phone:'', gender:'', bloodType:'' });
+  const [form, setForm] = useState({
+    firstName:'', lastName:'', email:'', phone:'', gender:'', bloodType:''
+  });
+  const [error, setError] = useState('');
 
-  useEffect(() => { axios.get('/api/patients').then(r => setPatients(r.data)); }, []);
+  const load = () => axios.get('/api/patients').then(r => setPatients(r.data));
+  useEffect(() => { load(); }, []);
 
   const submit = async e => {
     e.preventDefault();
-    await axios.post('/api/patients', form);
-    const r = await axios.get('/api/patients');
-    setPatients(r.data);
-    setForm({ firstName:'', lastName:'', email:'', phone:'', gender:'', bloodType:'' });
+    setError('');
+    try {
+      await axios.post('/api/patients', form);  // only 6 clean fields, no empty dates
+      await load();
+      setForm({ firstName:'', lastName:'', email:'', phone:'', gender:'', bloodType:'' });
+    } catch(err) {
+      setError('Error: ' + (err.response?.data || err.message));
+    }
   };
 
   return (
     <section>
       <h2>Patients</h2>
+      {error && <div style={{color:'red',marginBottom:'1rem'}}>{error}</div>}
       <form onSubmit={submit} className="form-row">
-        {['firstName','lastName','email','phone','gender','bloodType'].map(f => (
-          <input key={f} placeholder={f} value={form[f]}
-            onChange={e => setForm({...form, [f]: e.target.value})} required={['firstName','lastName','email'].includes(f)} />
-        ))}
+        <input placeholder="First Name *" value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} required />
+        <input placeholder="Last Name *"  value={form.lastName}  onChange={e=>setForm({...form,lastName:e.target.value})}  required />
+        <input placeholder="Email *" type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required />
+        <input placeholder="Phone"   value={form.phone}     onChange={e=>setForm({...form,phone:e.target.value})} />
+        <input placeholder="Gender"  value={form.gender}    onChange={e=>setForm({...form,gender:e.target.value})} />
+        <input placeholder="Blood Type" value={form.bloodType} onChange={e=>setForm({...form,bloodType:e.target.value})} />
         <button type="submit">Add Patient</button>
       </form>
       <table>
@@ -71,27 +80,34 @@ function Patients() {
   );
 }
 
-/* -------- APPOINTMENTS -------- */
+/* ── APPOINTMENTS ── */
 function Appointments() {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState({ patient_id:'', doctor_name:'', department:'', appointment_date:'', notes:'' });
+  const [error, setError] = useState('');
 
-  useEffect(() => { axios.get('/api/appointments').then(r => setItems(r.data)); }, []);
+  const load = () => axios.get('/api/appointments').then(r => setItems(r.data));
+  useEffect(() => { load(); }, []);
 
   const submit = async e => {
     e.preventDefault();
-    await axios.post('/api/appointments', form);
-    const r = await axios.get('/api/appointments');
-    setItems(r.data);
-    setForm({ patient_id:'', doctor_name:'', department:'', appointment_date:'', notes:'' });
+    setError('');
+    try {
+      await axios.post('/api/appointments', form);
+      await load();
+      setForm({ patient_id:'', doctor_name:'', department:'', appointment_date:'', notes:'' });
+    } catch(err) {
+      setError('Error: ' + (err.response?.data || err.message));
+    }
   };
 
   return (
     <section>
       <h2>Appointments</h2>
+      {error && <div style={{color:'red',marginBottom:'1rem'}}>{error}</div>}
       <form onSubmit={submit} className="form-row">
-        <input placeholder="Patient ID" value={form.patient_id} onChange={e=>setForm({...form,patient_id:e.target.value})} required />
-        <input placeholder="Doctor Name" value={form.doctor_name} onChange={e=>setForm({...form,doctor_name:e.target.value})} required />
+        <input placeholder="Patient ID *" value={form.patient_id} onChange={e=>setForm({...form,patient_id:e.target.value})} required />
+        <input placeholder="Doctor Name *" value={form.doctor_name} onChange={e=>setForm({...form,doctor_name:e.target.value})} required />
         <input placeholder="Department" value={form.department} onChange={e=>setForm({...form,department:e.target.value})} />
         <input type="datetime-local" value={form.appointment_date} onChange={e=>setForm({...form,appointment_date:e.target.value})} required />
         <input placeholder="Notes" value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} />
@@ -103,7 +119,8 @@ function Appointments() {
           {items.map(i => (
             <tr key={i.id}>
               <td>{i.id}</td><td>{i.patient_id}</td><td>{i.doctor_name}</td>
-              <td>{i.department}</td><td>{new Date(i.appointment_date).toLocaleString()}</td>
+              <td>{i.department}</td>
+              <td>{new Date(i.appointment_date).toLocaleString()}</td>
               <td><span className={`badge ${i.status}`}>{i.status}</span></td>
             </tr>
           ))}
@@ -113,16 +130,15 @@ function Appointments() {
   );
 }
 
-/* -------- BILLS -------- */
+/* ── BILLS ── */
 function Bills() {
   const [items, setItems] = useState([]);
-
-  useEffect(() => { axios.get('/api/bills').then(r => setItems(r.data)); }, []);
+  const load = () => axios.get('/api/bills').then(r => setItems(r.data));
+  useEffect(() => { load(); }, []);
 
   const pay = async id => {
     await axios.put(`/api/bills/${id}/pay`);
-    const r = await axios.get('/api/bills');
-    setItems(r.data);
+    await load();
   };
 
   return (
@@ -146,27 +162,35 @@ function Bills() {
   );
 }
 
-/* -------- PRESCRIPTIONS -------- */
+/* ── PRESCRIPTIONS ── */
 function Prescriptions() {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState({ patient_id:'', doctor_name:'', medication:'', dosage:'', frequency:'', duration:'' });
+  const [error, setError] = useState('');
 
-  useEffect(() => { axios.get('/api/prescriptions').then(r => setItems(r.data)); }, []);
+  const load = () => axios.get('/api/prescriptions').then(r => setItems(r.data));
+  useEffect(() => { load(); }, []);
 
   const submit = async e => {
     e.preventDefault();
-    await axios.post('/api/prescriptions', { ...form, patient_id: parseInt(form.patient_id) });
-    const r = await axios.get('/api/prescriptions');
-    setItems(r.data);
-    setForm({ patient_id:'', doctor_name:'', medication:'', dosage:'', frequency:'', duration:'' });
+    setError('');
+    try {
+      await axios.post('/api/prescriptions', { ...form, patient_id: parseInt(form.patient_id) });
+      await load();
+      setForm({ patient_id:'', doctor_name:'', medication:'', dosage:'', frequency:'', duration:'' });
+    } catch(err) {
+      setError('Error: ' + (err.response?.data || err.message));
+    }
   };
 
   return (
     <section>
       <h2>Prescriptions</h2>
+      {error && <div style={{color:'red',marginBottom:'1rem'}}>{error}</div>}
       <form onSubmit={submit} className="form-row">
         {['patient_id','doctor_name','medication','dosage','frequency','duration'].map(f => (
-          <input key={f} placeholder={f} value={form[f]} onChange={e=>setForm({...form,[f]:e.target.value})} required />
+          <input key={f} placeholder={f.replace(/_/g,' ')} value={form[f]}
+            onChange={e=>setForm({...form,[f]:e.target.value})} required />
         ))}
         <button type="submit">Add</button>
       </form>
@@ -185,27 +209,35 @@ function Prescriptions() {
   );
 }
 
-/* -------- LAB REPORTS -------- */
+/* ── LAB REPORTS ── */
 function LabReports() {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState({ patient_id:'', doctor_name:'', test_type:'', test_name:'', result:'', unit:'' });
+  const [error, setError] = useState('');
 
-  useEffect(() => { axios.get('/api/lab-reports').then(r => setItems(r.data)); }, []);
+  const load = () => axios.get('/api/lab-reports').then(r => setItems(r.data));
+  useEffect(() => { load(); }, []);
 
   const submit = async e => {
     e.preventDefault();
-    await axios.post('/api/lab-reports', { ...form, patient_id: parseInt(form.patient_id) });
-    const r = await axios.get('/api/lab-reports');
-    setItems(r.data);
-    setForm({ patient_id:'', doctor_name:'', test_type:'', test_name:'', result:'', unit:'' });
+    setError('');
+    try {
+      await axios.post('/api/lab-reports', { ...form, patient_id: parseInt(form.patient_id) });
+      await load();
+      setForm({ patient_id:'', doctor_name:'', test_type:'', test_name:'', result:'', unit:'' });
+    } catch(err) {
+      setError('Error: ' + (err.response?.data || err.message));
+    }
   };
 
   return (
     <section>
       <h2>Lab Reports</h2>
+      {error && <div style={{color:'red',marginBottom:'1rem'}}>{error}</div>}
       <form onSubmit={submit} className="form-row">
         {['patient_id','doctor_name','test_type','test_name','result','unit'].map(f => (
-          <input key={f} placeholder={f} value={form[f]} onChange={e=>setForm({...form,[f]:e.target.value})} required={f!=='unit'} />
+          <input key={f} placeholder={f.replace(/_/g,' ')} value={form[f]}
+            onChange={e=>setForm({...form,[f]:e.target.value})} required={f!=='unit'} />
         ))}
         <button type="submit">Add Report</button>
       </form>
@@ -224,24 +256,31 @@ function LabReports() {
   );
 }
 
-/* -------- REVIEWS -------- */
+/* ── REVIEWS ── */
 function Reviews() {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState({ patient_id:'', doctor_name:'', rating:'5', comment:'' });
+  const [error, setError] = useState('');
 
-  useEffect(() => { axios.get('/api/reviews').then(r => setItems(r.data)); }, []);
+  const load = () => axios.get('/api/reviews').then(r => setItems(r.data));
+  useEffect(() => { load(); }, []);
 
   const submit = async e => {
     e.preventDefault();
-    await axios.post('/api/reviews', { ...form, patient_id: parseInt(form.patient_id), rating: parseInt(form.rating) });
-    const r = await axios.get('/api/reviews');
-    setItems(r.data);
-    setForm({ patient_id:'', doctor_name:'', rating:'5', comment:'' });
+    setError('');
+    try {
+      await axios.post('/api/reviews', { ...form, patient_id: parseInt(form.patient_id), rating: parseInt(form.rating) });
+      await load();
+      setForm({ patient_id:'', doctor_name:'', rating:'5', comment:'' });
+    } catch(err) {
+      setError('Error: ' + (err.response?.data || err.message));
+    }
   };
 
   return (
     <section>
       <h2>Reviews</h2>
+      {error && <div style={{color:'red',marginBottom:'1rem'}}>{error}</div>}
       <form onSubmit={submit} className="form-row">
         <input placeholder="Patient ID" value={form.patient_id} onChange={e=>setForm({...form,patient_id:e.target.value})} required />
         <input placeholder="Doctor Name" value={form.doctor_name} onChange={e=>setForm({...form,doctor_name:e.target.value})} required />

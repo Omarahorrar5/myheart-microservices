@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 import motor.motor_asyncio
 from bson import ObjectId
@@ -62,8 +62,8 @@ async def create(r: LabReport):
     data = r.dict()
     data["created_at"] = datetime.utcnow().isoformat()
     result = await db.reports.insert_one(data)
-    data["id"] = str(result.inserted_id)
-    return data
+    created = await db.reports.find_one({"_id": result.inserted_id})
+    return serialize(created)
 
 @app.put("/api/lab-reports/{id}")
 async def update(id: str, r: LabReport):

@@ -1,0 +1,92 @@
+# ── OS ──────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ── IDE / Editors ────────────────────────────
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# ── Docker ───────────────────────────────────
+# Keep docker-compose.yml but ignore local overrides
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ── Secrets / Env files ──────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+secrets/
+
+# ── Logs ─────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ══════════════════════════════════════════════
+#  Java / Spring Boot (patient-service)
+# ══════════════════════════════════════════════
+patient-service/target/
+patient-service/.mvn/wrapper/maven-wrapper.jar
+patient-service/*.class
+patient-service/*.jar
+patient-service/*.war
+patient-service/hs_err_pid*
+
+# ══════════════════════════════════════════════
+#  Node.js (appointment / billing / review)
+# ══════════════════════════════════════════════
+appointment-service/node_modules/
+billing-service/node_modules/
+review-service/node_modules/
+appointment-service/package-lock.json
+billing-service/package-lock.json
+review-service/package-lock.json
+
+# ══════════════════════════════════════════════
+#  Python / FastAPI (prescription / lab)
+# ══════════════════════════════════════════════
+prescription-service/__pycache__/
+prescription-service/*.pyc
+prescription-service/*.pyo
+prescription-service/.venv/
+prescription-service/venv/
+prescription-service/.pytest_cache/
+
+lab-service/__pycache__/
+lab-service/*.pyc
+lab-service/*.pyo
+lab-service/.venv/
+lab-service/venv/
+lab-service/.pytest_cache/
+
+# ══════════════════════════════════════════════
+#  React Frontend
+# ══════════════════════════════════════════════
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
