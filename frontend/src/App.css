@@ -1,0 +1,81 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; }
+
+.app { min-height: 100vh; }
+
+header {
+  background: linear-gradient(135deg, #e63946, #1d3557);
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+header h1 { font-size: 1.5rem; }
+nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+nav button {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+nav button:hover, nav button.active { background: rgba(255,255,255,0.35); }
+
+main { padding: 2rem; }
+
+section { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+section h2 { margin-bottom: 1rem; color: #1d3557; border-bottom: 2px solid #e63946; padding-bottom: 0.5rem; }
+
+.form-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.form-row input, .form-row select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 140px;
+}
+.form-row button {
+  background: #e63946;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.form-row button:hover { background: #c1121f; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+thead tr { background: #1d3557; color: white; }
+th, td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid #eee; }
+tbody tr:hover { background: #f8f9fa; }
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.badge.pending { background: #fff3cd; color: #856404; }
+.badge.paid { background: #d1e7dd; color: #0a3622; }
+.badge.scheduled { background: #cfe2ff; color: #084298; }
+.badge.completed { background: #d1e7dd; color: #0a3622; }
+
+button { cursor: pointer; }
+td button {
+  background: #1d3557;
+  color: white;
+  border: none;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+td button:hover { background: #e63946; }
